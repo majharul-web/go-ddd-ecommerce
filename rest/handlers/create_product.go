@@ -15,8 +15,9 @@ func CreateProduct(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Invalid request payload", 400)
 		return
 	}
+	// Assign a new ID to the product
+	newProduct.ID = len(database.GetAllProducts()) + 1
 
-	newProduct.ID = len(database.ProductList) + 1
-	database.ProductList = append(database.ProductList, newProduct)
-	util.SendData(w, newProduct, 201)
+	created := database.StoreProduct(newProduct)
+	util.SendData(w, created, 201)
 }

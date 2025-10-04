@@ -6,10 +6,5 @@ import (
 
 func main() {
 	cmd.Serve()
-	
+
 }
-
-
-
-
-

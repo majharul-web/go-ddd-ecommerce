@@ -1,4 +1,4 @@
-package middleware
+package middlewares
 
 import (
 	"log"
@@ -9,6 +9,6 @@ func MoreMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		log.Println("MoreMiddleware: Before handler")
 		next.ServeHTTP(w, r)
-		
+
 	})
 }
