@@ -1,10 +1,24 @@
 package main
 
 import (
-	"ecommerce/cmd"
+	"ecommerce/util"
+	"fmt"
 )
 
 func main() {
-	cmd.Serve()
+	// cmd.Serve()
+
+	jwt, err := util.CreateJWT("my_secret_key", util.Payload{
+		Sub:          1,
+		FirstName:    "John",
+		LastName:     "Doe",
+		Email:        "john.doe@example.com",
+		IsShopOOwner: false,
+	})
+	if err != nil {
+		fmt.Println("Error creating JWT:", err)
+		return
+	}
+	fmt.Println("Generated JWT:", jwt)
 
 }
