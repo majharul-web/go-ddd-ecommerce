@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"ecommerce/config"
 	"ecommerce/database"
 	"ecommerce/util"
 	"encoding/json"
@@ -110,6 +111,21 @@ func LoginUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	conf := config.GetConfig()
+
+	token, err := util.CreateJWT(conf.JWTSecret, util.Payload{
+		Sub:         user.ID,
+		FirstName:   user.FirstName,
+		LastName:    user.LastName,
+		Email:       user.Email,
+		IsShopOwner: user.IsShopOOwner,
+	})
+
+	if err != nil {
+		util.SendError(w, "Failed to create JWT", 500)
+		return
+	}
+
 	// Normally, generate a JWT here. For simplicity, just return the user
-	util.SendData(w, user, 200)
+	util.SendData(w, token, 200)
 }
