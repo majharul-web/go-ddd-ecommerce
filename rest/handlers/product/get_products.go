@@ -1,4 +1,4 @@
-package handlers
+package product
 
 import (
 	"ecommerce/database"
@@ -6,7 +6,7 @@ import (
 	"net/http"
 )
 
-func GetProductList(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) GetProductList(w http.ResponseWriter, r *http.Request) {
 
 	util.SendData(w, database.GetAllProducts(), 200)
 }

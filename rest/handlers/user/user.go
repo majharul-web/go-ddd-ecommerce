@@ -1,4 +1,4 @@
-package handlers
+package user
 
 import (
 	"ecommerce/config"
@@ -10,12 +10,12 @@ import (
 )
 
 // 🟢 Get all users
-func GetUserList(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) GetUserList(w http.ResponseWriter, r *http.Request) {
 	util.SendData(w, database.GetAllUsers(), 200)
 }
 
 // 🟢 Get user by ID
-func GetUserByID(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) GetUserByID(w http.ResponseWriter, r *http.Request) {
 	userID := r.PathValue("userId")
 	id, err := strconv.Atoi(userID)
 	if err != nil {
@@ -33,7 +33,7 @@ func GetUserByID(w http.ResponseWriter, r *http.Request) {
 }
 
 // 🟢 Delete user by ID
-func DeleteUser(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) DeleteUser(w http.ResponseWriter, r *http.Request) {
 	userID := r.PathValue("userId")
 	id, err := strconv.Atoi(userID)
 	if err != nil {
@@ -51,7 +51,7 @@ func DeleteUser(w http.ResponseWriter, r *http.Request) {
 }
 
 // 🟢 Update user by ID
-func UpdateUser(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	userID := r.PathValue("userId")
 	id, err := strconv.Atoi(userID)
 	if err != nil {
@@ -77,7 +77,7 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 }
 
 // 🟢 Create new user
-func CreateUser(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) CreateUser(w http.ResponseWriter, r *http.Request) {
 	var newUser database.User
 	decoder := json.NewDecoder(r.Body)
 	err := decoder.Decode(&newUser)
@@ -94,7 +94,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 }
 
 // LoginUser handles login
-func LoginUser(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) LoginUser(w http.ResponseWriter, r *http.Request) {
 	var payload struct {
 		Email    string `json:"email"`
 		Password string `json:"password"`
