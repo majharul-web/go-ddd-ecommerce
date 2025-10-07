@@ -12,14 +12,14 @@ func initRoutes(mux *http.ServeMux, manager *middleware.Manager) {
 		manager.With(http.HandlerFunc(handlers.Test)))
 
 	// ✅ Product routes
-	mux.Handle("GET /products", manager.With(http.HandlerFunc(handlers.GetProductList), middleware.MoreMiddleware))
-	mux.Handle("POST /products", manager.With(http.HandlerFunc(handlers.CreateProduct)))
-	mux.Handle("GET /products/{productId}", manager.With(http.HandlerFunc(handlers.GetProductByID)))
-	mux.Handle("PUT /products/{productId}", manager.With(http.HandlerFunc(handlers.UpdateProduct)))
-	mux.Handle("DELETE /products/{productId}", manager.With(http.HandlerFunc(handlers.DeleteProduct)))
+	mux.Handle("GET /products", manager.With(http.HandlerFunc(handlers.GetProductList)))
+	mux.Handle("POST /products", manager.With(http.HandlerFunc(handlers.CreateProduct), middleware.AuthenticateJWT))
+	mux.Handle("GET /products/{productId}", manager.With(http.HandlerFunc(handlers.GetProductByID), middleware.AuthenticateJWT))
+	mux.Handle("PUT /products/{productId}", manager.With(http.HandlerFunc(handlers.UpdateProduct), middleware.AuthenticateJWT))
+	mux.Handle("DELETE /products/{productId}", manager.With(http.HandlerFunc(handlers.DeleteProduct), middleware.AuthenticateJWT))
 
 	// ✅ User routes
-	mux.Handle("GET /users", manager.With(http.HandlerFunc(handlers.GetUserList), middleware.MoreMiddleware))
+	mux.Handle("GET /users", manager.With(http.HandlerFunc(handlers.GetUserList)))
 	mux.Handle("POST /users", manager.With(http.HandlerFunc(handlers.CreateUser)))
 	mux.Handle("GET /users/{userId}", manager.With(http.HandlerFunc(handlers.GetUserByID)))
 	mux.Handle("PUT /users/{userId}", manager.With(http.HandlerFunc(handlers.UpdateUser)))

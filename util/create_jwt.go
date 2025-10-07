@@ -31,13 +31,13 @@ func CreateJWT(secret string, data Payload) (string, error) {
 		return "", err
 	}
 
-	headerBase64 := base64UrlEncode(byteArrHeader)
+	headerBase64 := Base64UrlEncode(byteArrHeader)
 
 	byteArrData, err := json.Marshal(data)
 	if err != nil {
 		return "", err
 	}
-	payloadBase64 := base64UrlEncode(byteArrData)
+	payloadBase64 := Base64UrlEncode(byteArrData)
 
 	byteArrSecret := []byte(secret)
 
@@ -47,13 +47,13 @@ func CreateJWT(secret string, data Payload) (string, error) {
 	hash := hmac.New(sha256.New, byteArrSecret)
 	hash.Write(byteArrMessage)
 	signature := hash.Sum(nil)
-	signatureBase64 := base64UrlEncode(signature)
+	signatureBase64 := Base64UrlEncode(signature)
 
 	jwt := strings.Join([]string{headerBase64, payloadBase64, signatureBase64}, ".")
 	return jwt, nil
 
 }
 
-func base64UrlEncode(data []byte) string {
+func Base64UrlEncode(data []byte) string {
 	return base64.URLEncoding.WithPadding(base64.NoPadding).EncodeToString(data)
 }
