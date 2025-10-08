@@ -22,6 +22,12 @@ func Serve() {
 		os.Exit(1)
 	}
 
+	err = db.MigrateDB(dbConn, "./migrations")
+	if err != nil {
+		fmt.Println("Failed to apply migrations:", err)
+		os.Exit(1)
+	}
+
 	productRepo := repo.NewProductRepo(dbConn)
 	userRepo := repo.NewUserRepo(dbConn)
 
