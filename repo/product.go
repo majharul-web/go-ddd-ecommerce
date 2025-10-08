@@ -2,15 +2,17 @@ package repo
 
 import (
 	"fmt"
+
+	"github.com/jmoiron/sqlx"
 )
 
 // Product struct
 type Product struct {
-	ID          int     `json:"id"`
-	Title       string  `json:"title"`
-	Description string  `json:"description"`
-	Price       float64 `json:"price"`
-	ImgUrl      string  `json:"imageUrl"`
+	ID          int     `json:"id" db:"id"`
+	Title       string  `json:"title" db:"title"`
+	Description string  `json:"description" db:"description"`
+	Price       float64 `json:"price" db:"price"`
+	ImgUrl      string  `json:"imageUrl" db:"img_url"`
 }
 
 // ProductRepo interface
@@ -24,69 +26,88 @@ type ProductRepo interface {
 
 // productRepo struct
 type productRepo struct {
-	productList []*Product
+	db *sqlx.DB
 }
 
-// NewProductRepo creates a repo and adds initial products
-func NewProductRepo() ProductRepo {
-	repo := &productRepo{}
-	repo.generateInitialProducts()
-	return repo
+// NewProductRepo creates a repo instance
+func NewProductRepo(db *sqlx.DB) ProductRepo {
+	return &productRepo{db: db}
 }
 
-// Create adds a new product
+// Create adds a new product to PostgreSQL
 func (r *productRepo) Create(p Product) (*Product, error) {
-	p.ID = len(r.productList) + 1
-	r.productList = append(r.productList, &p)
+	query := `
+		INSERT INTO products (title, description, price, img_url)
+		VALUES ($1, $2, $3, $4)
+		RETURNING id;
+	`
+
+	var productID int
+	err := r.db.QueryRowx(query,
+		p.Title, p.Description, p.Price, p.ImgUrl,
+	).Scan(&productID)
+	if err != nil {
+		return nil, err
+	}
+
+	p.ID = productID
 	return &p, nil
 }
 
-// Update modifies an existing product by ID
-func (r *productRepo) Update(id int, updated Product) (*Product, error) {
-	for i, p := range r.productList {
-		if p.ID == id {
-			updated.ID = id
-			r.productList[i] = &updated
-			return &updated, nil
-		}
+// Update modifies an existing product
+func (r *productRepo) Update(id int, p Product) (*Product, error) {
+	query := `
+		UPDATE products
+		SET title = $1, description = $2, price = $3, img_url = $4
+		WHERE id = $5
+		RETURNING id, title, description, price, img_url;
+	`
+
+	var updated Product
+	err := r.db.Get(&updated, query,
+		p.Title, p.Description, p.Price, p.ImgUrl, id,
+	)
+	if err != nil {
+		return nil, fmt.Errorf("failed to update product with ID %d: %v", id, err)
 	}
-	return &updated, fmt.Errorf("product with ID %d not found", id)
+	return &updated, nil
 }
 
 // Delete removes a product by ID
 func (r *productRepo) Delete(id int) error {
-	var tempList []*Product
-	for _, p := range r.productList {
-		if p.ID != id {
-			tempList = append(tempList, p)
-		}
+	query := `DELETE FROM products WHERE id = $1;`
+	result, err := r.db.Exec(query, id)
+	if err != nil {
+		return err
 	}
-	if len(tempList) == len(r.productList) {
+
+	rows, _ := result.RowsAffected()
+	if rows == 0 {
 		return fmt.Errorf("product with ID %d not found", id)
 	}
-	r.productList = tempList
 	return nil
 }
 
 // Get retrieves a product by ID
 func (r *productRepo) Get(id int) (*Product, error) {
-	for _, p := range r.productList {
-		if p.ID == id {
-			return p, nil
-		}
+	query := `SELECT id, title, description, price, img_url FROM products WHERE id = $1;`
+
+	var p Product
+	err := r.db.Get(&p, query, id)
+	if err != nil {
+		return nil, fmt.Errorf("product with ID %d not found: %v", id, err)
 	}
-	return nil, fmt.Errorf("product with ID %d not found", id)
+	return &p, nil
 }
 
-// List returns all products as pointers
-func (r *productRepo) List() (	[]*Product, error) {
-	return r.productList, nil
-}
+// List returns all products
+func (r *productRepo) List() ([]*Product, error) {
+	query := `SELECT id, title, description, price, img_url FROM products ORDER BY id;`
 
-// generateInitialProducts adds some sample products
-func (r *productRepo) generateInitialProducts() {
-	r.productList = []*Product{
-		{ID: 1, Title: "Product 1", Description: "Description 1", Price: 10.0, ImgUrl: "http://example.com/img1.jpg"},
-		{ID: 2, Title: "Product 2", Description: "Description 2", Price: 20.0, ImgUrl: "http://example.com/img2.jpg"},
+	var products []*Product
+	err := r.db.Select(&products, query)
+	if err != nil {
+		return nil, err
 	}
+	return products, nil
 }
