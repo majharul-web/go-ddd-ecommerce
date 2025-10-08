@@ -16,7 +16,7 @@ func Serve() {
 	// Load configuration
 	conf := config.GetConfig()
 
-	dbConn, err := db.NewConnection()
+	dbConn, err := db.NewConnection(conf.DB)
 	if err != nil {
 		fmt.Println("Failed to connect to the database:", err)
 		os.Exit(1)

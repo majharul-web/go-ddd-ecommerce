@@ -10,11 +10,22 @@ import (
 
 var configurations *Config
 
+type DBConfig struct {
+	Host     string
+	Port     string
+	User     string
+	Password string
+	DBName   string
+	SSLMode  string
+}
+
 type Config struct {
 	Version     string
 	ServiceName string
 	HttpPort    int
 	JWTSecret   string
+
+	DB *DBConfig
 }
 
 func loadConfig() {
@@ -48,11 +59,26 @@ func loadConfig() {
 		os.Exit(1)
 	}
 
+	dbConfig := DBConfig{
+		Host:     os.Getenv("DB_HOST"),
+		Port:     os.Getenv("DB_PORT"),
+		User:     os.Getenv("DB_USER"),
+		Password: os.Getenv("DB_PASSWORD"),
+		DBName:   os.Getenv("DB_NAME"),
+		SSLMode:  os.Getenv("DB_SSLMODE"),
+	}
+
+	if dbConfig.Host == "" || dbConfig.Port == "" || dbConfig.User == "" || dbConfig.Password == "" || dbConfig.DBName == "" || dbConfig.SSLMode == "" {
+		fmt.Println("Database configuration variables are not properly set in .env file")
+		os.Exit(1)
+	}
+
 	configurations = &Config{
 		Version:     version,
 		ServiceName: serviceName,
 		HttpPort:    httpPort,
 		JWTSecret:   jwtSecret,
+		DB:          &dbConfig,
 	}
 
 }
