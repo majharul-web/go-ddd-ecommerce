@@ -1,30 +1,17 @@
 package repo
 
 import (
+	"ecommerce/domain"
+	"ecommerce/user"
 	"fmt"
 
 	"github.com/jmoiron/sqlx"
 )
 
-// User struct
-type User struct {
-	ID          int    `db:"id" json:"id"`
-	FirstName   string `db:"first_name" json:"first_name"`
-	LastName    string `db:"last_name" json:"last_name"`
-	Email       string `db:"email" json:"email"`
-	Password    string `db:"password" json:"password"`
-	Avatar      string `db:"avatar" json:"avatar"`
-	IsShopOwner bool   `db:"is_shop_owner" json:"is_shop_owner"`
-}
 
-// UserRepo interface
+
 type UserRepo interface {
-	Create(u User) (*User, error)
-	Update(id int, u User) (*User, error)
-	Delete(id int) error
-	Get(id int) (*User, error)
-	GetByEmail(email string) (*User, error)
-	List() ([]*User, error)
+	user.UserRepo
 }
 
 // userRepo struct
@@ -40,7 +27,7 @@ func NewUserRepo(db *sqlx.DB) UserRepo {
 }
 
 // Create adds a new user
-func (r *userRepo) Create(u User) (*User, error) {
+func (r *userRepo) Create(u domain.User) (*domain.User, error) {
 	query := `
 		INSERT INTO users (first_name, last_name, email, password, avatar, is_shop_owner)
 		VALUES (:first_name, :last_name, :email, :password, :avatar, :is_shop_owner)
@@ -62,7 +49,7 @@ func (r *userRepo) Create(u User) (*User, error) {
 }
 
 // Update modifies an existing user by ID
-func (r *userRepo) Update(id int, u User) (*User, error) {
+func (r *userRepo) Update(id int, u domain.User) (*domain.User, error) {
 	query := `
 		UPDATE users
 		SET first_name = :first_name,
@@ -82,7 +69,7 @@ func (r *userRepo) Update(id int, u User) (*User, error) {
 	}
 	defer stmt.Close()
 
-	var updated User
+	var updated domain.User
 	if err := stmt.Get(&updated, u); err != nil {
 		return nil, err
 	}
@@ -110,8 +97,8 @@ func (r *userRepo) Delete(id int) error {
 }
 
 // Get retrieves a user by ID
-func (r *userRepo) Get(id int) (*User, error) {
-	var user User
+func (r *userRepo) Get(id int) (*domain.User, error) {
+	var user domain.User
 	query := `SELECT * FROM users WHERE id = $1`
 	if err := r.db.Get(&user, query, id); err != nil {
 		return nil, err
@@ -120,8 +107,8 @@ func (r *userRepo) Get(id int) (*User, error) {
 }
 
 // GetByEmail retrieves a user by email
-func (r *userRepo) GetByEmail(email string) (*User, error) {
-	var user User
+func (r *userRepo) GetByEmail(email string) (*domain.User, error) {
+	var user domain.User
 	query := `SELECT * FROM users WHERE email = $1`
 	if err := r.db.Get(&user, query, email); err != nil {
 		return nil, err
@@ -130,8 +117,8 @@ func (r *userRepo) GetByEmail(email string) (*User, error) {
 }
 
 // List returns all users
-func (r *userRepo) List() ([]*User, error) {
-	var users []*User
+func (r *userRepo) List() ([]*domain.User, error) {
+	var users []*domain.User
 	query := `SELECT * FROM users ORDER BY id`
 	if err := r.db.Select(&users, query); err != nil {
 		return nil, err

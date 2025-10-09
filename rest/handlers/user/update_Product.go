@@ -1,7 +1,7 @@
 package user
 
 import (
-	"ecommerce/repo"
+	"ecommerce/domain"
 	"ecommerce/util"
 	"encoding/json"
 	"net/http"
@@ -32,7 +32,7 @@ func (h *Handler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	updated, err := h.userRepo.Update(id, repo.User{
+	updated, err := h.svc.Update(id, domain.User{
 		ID:          id,
 		FirstName:   updatedUser.FirstName,
 		LastName:    updatedUser.LastName,

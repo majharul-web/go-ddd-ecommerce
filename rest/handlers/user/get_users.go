@@ -6,7 +6,7 @@ import (
 )
 
 func (h *Handler) GetUserList(w http.ResponseWriter, r *http.Request) {
-	users, err := h.userRepo.List()
+	users, err := h.svc.List()
 	if err != nil {
 		util.SendError(w, "Failed to retrieve users", http.StatusInternalServerError)
 		return

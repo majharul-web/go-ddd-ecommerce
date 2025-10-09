@@ -21,7 +21,7 @@ func (h *Handler) LoginUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := h.userRepo.GetByEmail(payload.Email)
+	user, err := h.svc.GetByEmail(payload.Email)
 	if err != nil || user.Password != payload.Password {
 		util.SendError(w, "Invalid email or password", http.StatusUnauthorized)
 		return

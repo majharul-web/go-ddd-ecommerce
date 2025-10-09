@@ -1,7 +1,7 @@
-package user	
+package user
 
 import (
-	"ecommerce/repo"
+	"ecommerce/domain"
 	"ecommerce/util"
 	"encoding/json"
 	"net/http"
@@ -25,7 +25,7 @@ func (h *Handler) CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	created, err := h.userRepo.Create(repo.User{
+	created, err := h.svc.Create(domain.User{
 		FirstName:   newUser.FirstName,
 		LastName:    newUser.LastName,
 		Email:      newUser.Email,
@@ -33,6 +33,7 @@ func (h *Handler) CreateUser(w http.ResponseWriter, r *http.Request) {
 		Avatar:     newUser.Avatar,
 		IsShopOwner: newUser.IsShopOwner,
 	})
+	
 	if err != nil {
 		util.SendError(w, "Failed to create user", http.StatusInternalServerError)
 		return
