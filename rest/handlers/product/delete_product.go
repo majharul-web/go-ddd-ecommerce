@@ -14,7 +14,7 @@ func (h *Handler) DeleteProduct(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = h.productRepo.Delete(id)
+	err = h.svc.Delete(id)
 	if err != nil {
 		util.SendError(w, "Product not found", http.StatusNotFound)
 		return
