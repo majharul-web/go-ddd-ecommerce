@@ -28,6 +28,9 @@ func (s *service) Get(id int) (*domain.Product, error) {
 	return s.productRepo.Get(id)
 }
 
-func (s *service) List() ([]*domain.Product, error) {
-	return s.productRepo.List()
+func (s *service) List(page int, limit int) ([]*domain.Product, error) {
+	return s.productRepo.List(page, limit)
+}
+func (s *service) Count() (int, error) {
+	return s.productRepo.Count()
 }
