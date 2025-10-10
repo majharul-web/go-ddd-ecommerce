@@ -4,7 +4,10 @@ import (
 	"ecommerce/util"
 	"net/http"
 	"strconv"
+	"sync"
 )
+
+var cnt int
 
 func (h *Handler) GetProductList(w http.ResponseWriter, r *http.Request) {
 	// get page and limit from query params
@@ -34,11 +37,47 @@ func (h *Handler) GetProductList(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	count, err := h.svc.Count()
-	if err != nil {
-		util.SendError(w, "Failed to retrieve products", http.StatusInternalServerError)
-		return
-	}
+	var wg sync.WaitGroup
 
-	util.SendPaginatedData(w, products, pageInt, limitInt, count)
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		cnt1, err := h.svc.Count()
+		if err != nil {
+			util.SendError(w, "Failed to retrieve products", http.StatusInternalServerError)
+			return
+		}
+		cnt = cnt1
+
+	}()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		cnt2, err := h.svc.Count()
+		if err != nil {
+			util.SendError(w, "Failed to retrieve products", http.StatusInternalServerError)
+			return
+		}
+		cnt = cnt2
+
+	}()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		cnt3, err := h.svc.Count()
+		if err != nil {
+			util.SendError(w, "Failed to retrieve products", http.StatusInternalServerError)
+			return
+		}
+		cnt = cnt3
+
+	}()
+
+	wg.Wait()
+
+	// time.Sleep(8 * time.Second)
+
+	util.SendPaginatedData(w, products, pageInt, limitInt, cnt)
 }
